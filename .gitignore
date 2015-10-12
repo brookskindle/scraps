@@ -1,0 +1,5 @@
+*.py[cod]
+*.out
+*.bin
+*.swp
+*.o
