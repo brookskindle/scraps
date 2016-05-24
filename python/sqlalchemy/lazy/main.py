@@ -17,7 +17,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine("sqlite:///relationships.db", echo=True)
+engine = create_engine("sqlite:///relationships.db")
 Base = declarative_base()
 
 
@@ -26,7 +26,8 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    posts = relationship("Post", back_populates="user")
+
+    posts = relationship("Post", backref="user")
 
 
 class Post(Base):
@@ -35,7 +36,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True)
     content = Column(String(160), unique=False, nullable=False)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    user = relationship("User", back_populates="post")
+
 
 
 ######################################################################
@@ -63,10 +64,14 @@ def seed(name, postcount):
     click.secho("Now seeding your database!", fg="green")
     user = session.query(User).filter_by(name=name).first()
     if user is None:
-        click.secho("User {} not found, will create".format(user), fg="yellow")
+        click.secho("User {} not found, will create".format(name), fg="yellow")
         user = User(name=name)
         session.add(user)
         session.commit()
+    content = "Hello, name is {}!".format(name)
+    [user.posts.append(Post(content=content)) for i in range(postcount)]
+    session.add(user)
+    session.commit()
 
 @click.command()
 def perform():
@@ -82,5 +87,13 @@ cli.add_command(perform)
 # Program execution
 ############################################################################
 
+# Create our tables in the database
+Base.metadata.create_all(engine)
+
 if __name__ == "__main__":
+
+    # run program
     cli()
+
+# close the session
+session.close()
