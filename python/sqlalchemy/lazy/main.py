@@ -17,7 +17,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine("sqlite:///relationships.db")
+engine = create_engine("sqlite:///relationships.db", echo=True)
 Base = declarative_base()
 
 
@@ -27,11 +27,11 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
-    posts= relationship("Post", backref="user")
-    posts_select = relationship("Post", lazy="select")
-    posts_joined = relationship("Post", lazy="joined")
-    posts_subquery = relationship("Post", lazy="subquery")
-    posts_dynamic = relationship("Post", lazy="dynamic")
+    posts = relationship("Post", backref="user")
+    #posts = relationship("Post", lazy="select")  # lazy="select" is the default
+    #posts = relationship("Post", lazy="joined")
+    #posts = relationship("Post", lazy="subquery")
+    #posts = relationship("Post", lazy="dynamic")
 
 
 class Post(Base):
@@ -83,7 +83,11 @@ def benchmark():
     """
     Runs performance tests against the database.
     """
+    import pdb; pdb.set_trace()
     user = session.query(User).first()
+    if user is None:
+        click.secho("No users exist, seed the database first!", fg="red")
+        return
     name = user.name
     click.secho("Running benchmark against user={}!".format(name), fg="green")
     times = []
