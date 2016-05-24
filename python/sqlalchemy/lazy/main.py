@@ -27,7 +27,11 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
-    posts = relationship("Post", backref="user")
+    posts= relationship("Post", backref="user")
+    posts_select = relationship("Post", lazy="select")
+    posts_joined = relationship("Post", lazy="joined")
+    posts_subquery = relationship("Post", lazy="subquery")
+    posts_dynamic = relationship("Post", lazy="dynamic")
 
 
 class Post(Base):
@@ -44,6 +48,7 @@ class Post(Base):
 ######################################################################
 import click
 from sqlalchemy.orm import sessionmaker
+import time
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -74,14 +79,54 @@ def seed(name, postcount):
     session.commit()
 
 @click.command()
-def perform():
+def benchmark():
     """
     Runs performance tests against the database.
     """
-    pass
+    user = session.query(User).first()
+    name = user.name
+    click.secho("Running benchmark against user={}!".format(name), fg="green")
+    times = []
+
+    # lazy="select"
+    start = time.time()
+    user.posts_select
+    end = time.time()
+    select_time = end - start
+    times.append((select_time, 'lazy="select"'))
+
+    # lazy="joined"
+    start = time.time()
+    user.posts_joined
+    end = time.time()
+    joined_time = end - start
+    times.append((joined_time, 'lazy="joined"'))
+
+    # lazy="subquery"
+    start = time.time()
+    user.posts_joined
+    end = time.time()
+    subquery_time = end - start
+    times.append((subquery_time, 'lazy="subquery"'))
+
+    # lazy="dynamic"
+    start = time.time()
+    user.posts_dynamic
+    end = time.time()
+    dynamic_time = end - start
+    times.append((dynamic_time, 'lazy="dynamic"'))
+
+    # Sort and display results
+    times.sort(key=lambda t: t[0])
+    for result in times:
+        click.secho(
+            "Benchmark for {}: {}".format(result[1], result[0]),
+            fg="yellow"
+        )
+
 
 cli.add_command(seed)
-cli.add_command(perform)
+cli.add_command(benchmark)
 
 ############################################################################
 # Program execution
