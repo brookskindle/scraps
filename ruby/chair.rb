@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-
 class Chair
     attr_reader :color, :price
     attr_writer :price
@@ -11,3 +10,14 @@ class Chair
 end
 
 puts 'hello there!'
+
+
+class Student
+    @@id = 0
+
+    attr_reader :id
+
+    def inititialize
+        @@id += 1
+    end
+end
