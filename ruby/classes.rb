@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require "pry"
+# If imported, can directly access the classes by just calling them
 
 class Parent
     def initialize
@@ -53,5 +53,3 @@ b = Bird.new
 p = Penguin.new
 parent = Parent.new
 child = Child.new
-
-binding.pry

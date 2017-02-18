@@ -1,7 +1,10 @@
 # require "./chair"
-require_relative "chair"
+require "pry"
+
+require "./classes"
+require "./testmodule"
 
 binding.pry
 
-puts 'I required chair'
-puts chair
+#puts classes.Parent.name
+puts someinclude.TestClass.name
