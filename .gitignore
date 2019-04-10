@@ -4,3 +4,6 @@
 *.swp
 *.o
 *.so
+
+# node
+node_modules
